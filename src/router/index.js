@@ -4,12 +4,18 @@ import VueRouter from 'vue-router'
 import Login from '../components/Login.vue'
 // home 组件
 import Home from '../components/Home.vue'
+//
+import Welcome from "../components/Welcome.vue"
+import Users from "../components/user/Users.vue"
 // 路由
 Vue.use(VueRouter)
 
 const routes = [
   { path: '/login', component: Login },
-  { path: '/home', component: Home }
+  { path: '/home',redirect : '/welcome', component: Home ,children:[
+    { path:'/welcome' ,component: Welcome},
+    { path:'/users' ,component: Users}
+  ] }
 ]
 const router = new VueRouter({
   routes
@@ -21,10 +27,8 @@ router.beforeEach((to, from, next) => {
   // 函数 放行
   if (to.path === '/login') return next()
   const tokenStr = window.sessionStorage.getItem('token')
-  console.log(tokenStr)
   if (!tokenStr) return next('/login')
   next()
 })
-
 
 export default router
