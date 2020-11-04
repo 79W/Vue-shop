@@ -64,7 +64,7 @@
                  <el-button type="danger" @click="delUser(scope.row.id)" icon="el-icon-delete" size="mini"></el-button>
               </el-tooltip>
               <el-tooltip  effect="dark" content="设置" placement="top" :enterable="false">
-                  <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
+                  <el-button type="warning" @click="uodateOliles(scope.row)" icon="el-icon-setting" size="mini"></el-button>
               </el-tooltip>
             </template>
           </el-table-column>
@@ -139,6 +139,34 @@
      </el-dialog>
 
 
+
+     <el-dialog
+       title="改变角色"
+       :visible.sync="ShowJiao"
+       width="30%"
+       >
+          <el-select
+           v-model="xuanVaule"
+           @change="Optionchange(xuanVaule)"
+          placeholder="请选择">
+              <el-option
+                v-for="item in AllJiao"
+                :key="item.id"
+                :label="item.roleName"
+                :value="item.id"
+                >
+                </el-option>
+            </el-select>
+
+
+       <span slot="footer" class="dialog-footer">
+         <el-button type="primary" @click="updatequanxiao" >修 改</el-button>
+       </span>
+
+
+      </el-dialog>
+
+
   </div>
 </template>
 
@@ -146,8 +174,15 @@
   export default{
       data(){
         return {
+          xuanVaule:'',
+          ShowJiao:false,
           dialogVisible:false,
           userDist:false,
+          updateJiao:{
+              id:"",
+              rid:'',
+          },
+          AllJiao:[],
           queryInfo:{
              query:'',
              pagenum:1,
@@ -191,8 +226,14 @@
 
       created() {
           this.getUserList()
+          this.getAllroles()
       },
       methods:{
+        async getAllroles(){
+          const res = await this.$http.get('roles')
+          this.AllJiao = res.data.data
+          console.log(res.data.data)
+        },
        async getUserList(){
            const res = await this.$http.get("users",{
               params:this.queryInfo
@@ -274,6 +315,26 @@
            this.$message.error(res.data.meta.msg)
          }
 
+        },
+        uodateOliles(val){
+          this.ShowJiao = true
+          this.updateJiao.id = val.id
+        },
+        Optionchange(id){
+          console.log(id)
+          this.updateJiao.rid = id
+        },
+        async updatequanxiao(){
+          // users/:id/role
+          console.log(this.updateJiao)
+         const res =  await this.$http.put(`users/${this.updateJiao.id}/role`,this.updateJiao)
+         if(res.data.meta.status == 200){
+           this.$message.success(res.data.meta.msg)
+           this.ShowJiao = false
+           this.getUserList()
+         }else{
+           this.$message.error(res.data.meta.msg)
+         }
         }
 
       }
